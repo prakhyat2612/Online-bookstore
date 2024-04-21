@@ -16,17 +16,17 @@ mongoose.connect('mongodb://localhost:27017/bookstore', {
 
 // Define Book schema and model
 const BookSchema = new mongoose.Schema({
-  title: String,
-  author: String,
+  title: {type: String, required: true},
+  author: {type: String, required: true},
   genre: [String],
   description: String,
-  price: Number,
-  ISBN: String,
+  price: {type: Number, required: true},
+  ISBN: {type: String, required: true},
   publicationDate: Date,
   publisher: String,
   language: String,
   imageURL: String,
-  quantityAvailable: Number,
+  quantityAvailable: {type: Number, default: 10},
   ratings: [{ userId: String, rating: Number, comment: String }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
@@ -37,6 +37,9 @@ const Book = mongoose.model('Book', BookSchema);
 app.post('/books', async (req, res) => {
     try {
       console.log(req);
+      if (req.body.price < 0) {
+        return res.status(400).json({ error: `Price cannot be negative` });
+      }
       const book = new Book(req.body);
       console.log(book);
       await book.save();
@@ -52,7 +55,7 @@ app.post('/books', async (req, res) => {
     }
 });
 
-// GET route for fetching books with optional filter parameters
+// GET books with optional filter parameters
 app.get('/books', async (req, res) => {
   try {
     if (!validateGetByFilter(req.query)) {
@@ -126,6 +129,49 @@ app.delete('/books/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Borrow a book
+app.put('/books/borrow/:id', async (req, res) => {
+  try {
+    const bookId = req.params.id;
+    const book = await Book.findById(bookId);
+
+    if (!book) {
+      return res.status(404).json({ error: 'Book not found' });
+    }
+
+    if (book.quantityAvailable <= 0) {
+      return res.status(400).json({ error: 'Book not available for borrowing' });
+    }
+
+    book.quantityAvailable--;
+    await book.save();
+
+    res.json({ message: 'Book borrowed successfully', book });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Return a book
+app.put('/books/return/:id', async (req, res) => {
+  try {
+    const bookId = req.params.id;
+    const book = await Book.findById(bookId);
+
+    if (!book) {
+      return res.status(404).json({ error: 'Book not found' });
+    }
+
+    book.quantityAvailable++;
+    await book.save();
+
+    res.json({ message: 'Book returned successfully', book });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 // Start server
 const PORT = process.env.PORT || 3000;
