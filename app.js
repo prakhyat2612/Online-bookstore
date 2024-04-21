@@ -9,7 +9,17 @@ const app = express();
 app.use(bodyParser.json());
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/bookstore', {
+// mongoose.connect('mongodb://localhost:27017/bookstore', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true
+// });
+
+// mongoose.connect('mongodb+srv://chacha:chacha@cluster0.a1sltay.mongodb.net/bookstore?retryWrites=true&w=majority&appName=Cluster0', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true
+// });
+
+mongoose.connect('mongodb+srv://chacha:chacha@mymongodb.ugl5ott.mongodb.net/bookstore?retryWrites=true&w=majority&appName=mymongodb', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -174,7 +184,7 @@ app.put('/books/return/:id', async (req, res) => {
 
 
 // Start server
-const PORT = process.env.PORT || 3000;
+const PORT = 8080;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
