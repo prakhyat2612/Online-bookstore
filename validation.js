@@ -9,7 +9,6 @@ function validateGetByFilter(queryParams) {
     'isbn',
     'publisher',
     'language',
-    'quantityAvailable',
   ];
 
   for (const param in queryParams) {
