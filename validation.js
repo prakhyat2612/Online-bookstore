@@ -5,14 +5,11 @@ function validateGetByFilter(queryParams) {
     'author',
     'genre',
     'description',
-    'price',
+    'maxPrice',
     'isbn',
-    'publicationDate',
     'publisher',
     'language',
-    'imageUrl',
     'quantityAvailable',
-    'ratings'
   ];
 
   for (const param in queryParams) {

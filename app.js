@@ -42,7 +42,13 @@ app.post('/books', async (req, res) => {
       await book.save();
       res.status(201).json(book);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (error.code === 11000 && error.keyPattern) {
+            // Duplicate key error
+            const fieldName = Object.keys(error.keyPattern)[0];
+            res.status(400).json({ error: `Duplicate value for ${fieldName}` });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
     }
 });
 
@@ -61,6 +67,16 @@ app.get('/books', async (req, res) => {
 
     if (req.query.title) {
       query.title = req.query.title;
+    }
+
+    if (req.query.maxPrice) {
+      query.price = { $lte: parseFloat(req.query.maxPrice) };
+    }
+
+    if (req.query.genre) {
+      // If genre is provided as a single value, convert it to an array
+      const genres = Array.isArray(req.query.genre) ? req.query.genre : [req.query.genre];
+      query.genre = { $in: genres };
     }
 
     const books = await Book.find(query);
