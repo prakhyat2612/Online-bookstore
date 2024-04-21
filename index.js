@@ -31,7 +31,7 @@ const BookSchema = new mongoose.Schema({
   genre: [String],
   description: String,
   price: {type: Number, required: true},
-  ISBN: {type: String, required: true},
+  ISBN: {type: String, required: true, unique: true},
   publicationDate: Date,
   publisher: String,
   language: String,
@@ -41,6 +41,8 @@ const BookSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
+
+BookSchema.index({ title: 1, author: 1 }, { unique: true });
 
 const Book = mongoose.model('Book', BookSchema);
 
